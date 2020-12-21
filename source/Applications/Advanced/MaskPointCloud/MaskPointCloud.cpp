@@ -1,7 +1,7 @@
 /*
-This example shows how to mask a point cloud from ZDF file and store
-the resulting point cloud in PCL format. The ZDF file for this sample can be found under the
-main instructions for Zivid samples.
+This example shows how to mask a point cloud from ZDF file
+and store the resulting point cloud in PCL format.
+The ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
@@ -22,7 +22,7 @@ namespace
         pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
         viewer.showCloud(cloudPTR);
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
         while(!viewer.wasStopped())
         {
         }
@@ -37,14 +37,8 @@ namespace
         {
             for(size_t j = 0; j < pointCloud.width; j++)
             {
-                if(pointCloud(j, i).z > zMax)
-                {
-                    zMax = pointCloud(j, i).z;
-                }
-                if(pointCloud(j, i).z < zMin)
-                {
-                    zMin = pointCloud(j, i).z;
-                }
+                zMax = std::max(zMax, pointCloud(j, i).z);
+                zMin = std::min(zMin, pointCloud(j, i).z);
             }
         }
 
@@ -56,12 +50,11 @@ namespace
             {
                 if(std::isnan(pointCloud(j, i).z))
                 {
-                    z.at<uchar>(i, j) = 0;
+                    z.at<uint8_t>(i, j) = 0;
                 }
                 else
                 {
-                    z.at<uchar>(i, j) =
-                        static_cast<unsigned char>((255.0F * (pointCloud(j, i).z - zMin) / (zMax - zMin)));
+                    z.at<uint8_t>(i, j) = static_cast<uint8_t>((255.0F * (pointCloud(j, i).z - zMin) / (zMax - zMin)));
                 }
             }
         }
@@ -190,7 +183,7 @@ int main()
                       cv::Point(widthMin, heightMin),
                       cv::Point(widthMax, heightMax),
                       cv::Scalar(255, 255, 255),
-                      -1);
+                      cv::FILLED);
 
         std::cout << "Converting to PCL point cloud" << std::endl;
         const auto pointCloudPCL = convertToPCLPointCloud(pointCloud);
