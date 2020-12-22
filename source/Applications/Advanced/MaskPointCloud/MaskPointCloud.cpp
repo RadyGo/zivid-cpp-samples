@@ -54,6 +54,8 @@ namespace
                 }
                 else
                 {
+                    // If few points are captured resulting in zMin == zMax, this will throw an division-by-zero
+                    // exception.
                     z.at<uint8_t>(i, j) = static_cast<uint8_t>((255.0F * (pointCloud(j, i).z - zMin) / (zMax - zMin)));
                 }
             }
